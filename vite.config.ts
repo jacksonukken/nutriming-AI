@@ -10,8 +10,9 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     define: {
-      // Polyfill process.env.API_KEY for the browser environment
-      // We check for both API_KEY and VITE_API_KEY to be flexible
+      // Polyfill process.env for browser environment to avoid "process is not defined"
+      'process.env': {},
+      // Polyfill process.env.API_KEY specifically
       'process.env.API_KEY': JSON.stringify(env.API_KEY || env.VITE_API_KEY || ''),
     },
     build: {

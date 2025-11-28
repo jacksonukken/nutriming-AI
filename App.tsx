@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Loader2, Utensils, Leaf, Droplet, Zap, Flame, Info } from 'lucide-react';
+import { Search, Loader2, Utensils, Leaf, Droplet, Zap, Flame, Info, Settings, RefreshCw } from 'lucide-react';
 import { analyzeFood } from './services/geminiService';
 import { NutritionData, LoadingState } from './types';
 import { NutritionChart } from './components/NutritionChart';
@@ -32,6 +32,8 @@ const App: React.FC = () => {
     }
   };
 
+  const isApiKeyError = error?.includes('API Key');
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
@@ -43,7 +45,7 @@ const App: React.FC = () => {
             </div>
             <h1 className="text-xl font-bold text-slate-800 tracking-tight">NutriScan AI</h1>
           </div>
-          <div className="text-xs text-slate-400 font-medium">
+          <div className="text-xs text-slate-400 font-medium hidden sm:block">
             Powered by Gemini
           </div>
         </div>
@@ -94,11 +96,41 @@ const App: React.FC = () => {
 
         {/* Error State */}
         {loadingState === LoadingState.ERROR && (
-          <div className="max-w-lg mx-auto p-4 bg-red-50 border border-red-100 text-red-700 rounded-xl flex items-start gap-3">
-             <Info className="h-5 w-5 flex-shrink-0 mt-0.5" />
-             <div>
-               <p className="font-medium">Analysis Failed</p>
-               <p className="text-sm opacity-90 mt-1">{error}</p>
+          <div className={`max-w-2xl mx-auto p-6 rounded-2xl border ${isApiKeyError ? 'bg-slate-50 border-slate-200' : 'bg-red-50 border-red-100'} mb-8`}>
+             <div className="flex items-start gap-4">
+               <div className={`p-2 rounded-full ${isApiKeyError ? 'bg-slate-200 text-slate-600' : 'bg-red-100 text-red-600'}`}>
+                 {isApiKeyError ? <Settings size={24} /> : <Info size={24} />}
+               </div>
+               <div className="flex-1">
+                 <h3 className={`font-bold text-lg mb-1 ${isApiKeyError ? 'text-slate-800' : 'text-red-800'}`}>
+                   {isApiKeyError ? 'Configuration Required' : 'Analysis Failed'}
+                 </h3>
+                 <p className={`${isApiKeyError ? 'text-slate-600' : 'text-red-700'} mb-4`}>
+                   {error}
+                 </p>
+                 
+                 {isApiKeyError && (
+                   <div className="bg-white p-4 rounded-xl border border-slate-200 text-sm text-slate-600 space-y-3">
+                     <p className="font-semibold text-slate-800">How to fix this in Vercel:</p>
+                     <ol className="list-decimal pl-5 space-y-2">
+                       <li>Go to your Vercel Dashboard and select this project.</li>
+                       <li>Navigate to <span className="font-mono bg-slate-100 px-1 py-0.5 rounded">Settings</span> &gt; <span className="font-mono bg-slate-100 px-1 py-0.5 rounded">Environment Variables</span>.</li>
+                       <li>Add a new variable with Key: <span className="font-mono font-bold text-emerald-600">API_KEY</span></li>
+                       <li>Paste your Google Gemini API Key as the Value.</li>
+                       <li className="font-semibold text-amber-600">Important: Go to 'Deployments' and Redeploy for changes to apply.</li>
+                     </ol>
+                   </div>
+                 )}
+
+                 {!isApiKeyError && (
+                   <button 
+                     onClick={(e) => handleSearch(e as any)}
+                     className="mt-2 text-sm font-medium text-red-700 hover:text-red-800 flex items-center gap-1"
+                   >
+                     <RefreshCw size={14} /> Try Again
+                   </button>
+                 )}
+               </div>
              </div>
           </div>
         )}
