@@ -1,0 +1,5 @@
+{
+  "name": "NutriScan AI",
+  "description": "Instantly analyze the nutritional value of any food using AI. Get detailed breakdowns of calories, macros, and health insights.",
+  "requestFramePermissions": []
+}
