@@ -3,12 +3,17 @@ import { NutritionData } from "../types";
 
 export const analyzeFood = async (query: string): Promise<NutritionData> => {
   try {
-    // Initialize lazily to prevent top-level await/crash issues
-    // and to handle cases where API_KEY might not be loaded immediately on page load
-    const apiKey = process.env.API_KEY;
+    // 1. Get Key
+    let apiKey = process.env.API_KEY;
+
+    // 2. Validate existence
     if (!apiKey) {
       throw new Error("API Key is not configured. Please add the variable 'API_KEY' in your Vercel Project Settings.");
     }
+
+    // 3. Sanitize Key (Critical for Vercel/Copy-paste errors)
+    // Removes whitespace and accidental quotes (e.g. if user entered "AIza..." with quotes)
+    apiKey = apiKey.trim().replace(/^["']|["']$/g, '');
 
     const ai = new GoogleGenAI({ apiKey });
 
@@ -42,7 +47,6 @@ export const analyzeFood = async (query: string): Promise<NutritionData> => {
     }
 
     // Clean the response text to remove any potential markdown formatting
-    // Sometimes the model wraps JSON in ```json ... ``` despite the MIME type config
     let cleanText = response.text.trim();
     if (cleanText.startsWith('```')) {
       cleanText = cleanText.replace(/^```json\s?/, '').replace(/^```\s?/, '').replace(/```$/, '');
@@ -56,8 +60,15 @@ export const analyzeFood = async (query: string): Promise<NutritionData> => {
       throw new Error("Failed to parse nutrition data. The AI response was not valid JSON.");
     }
     
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error analyzing food:", error);
+    
+    // Check for specific Google API errors regarding keys
+    const errorMsg = error?.message || error?.toString() || '';
+    if (errorMsg.includes('API key') || errorMsg.includes('400')) {
+      throw new Error("API Key is invalid. Please check your Vercel settings and ensure the key has no extra spaces or quotes.");
+    }
+
     throw error;
   }
 };

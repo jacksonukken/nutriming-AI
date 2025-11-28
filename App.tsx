@@ -31,7 +31,8 @@ const App: React.FC = () => {
     }
   };
 
-  const isApiKeyError = error?.includes('API Key');
+  // Case-insensitive check for "api key" to match both our custom errors and Google's raw errors
+  const isApiKeyError = error?.toLowerCase().includes('api key');
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100 flex flex-col items-center">
@@ -121,7 +122,12 @@ const App: React.FC = () => {
               {isApiKeyError && (
                  <div className="bg-slate-950/50 p-4 rounded-lg border border-slate-800 text-sm space-y-2">
                    <p className="font-mono text-emerald-400 font-bold">Vercel Configuration Required:</p>
-                   <p className="text-slate-500">Add <span className="text-slate-300">API_KEY</span> to your Vercel Project Settings and Redeploy.</p>
+                   <ul className="list-disc list-inside text-slate-400 space-y-1 ml-1">
+                     <li>Check your Vercel Project Settings</li>
+                     <li>Ensure <span className="text-slate-200 font-mono">API_KEY</span> value has no extra spaces</li>
+                     <li>Ensure there are no quotes (e.g. use <span className="text-slate-200 font-mono">AIza...</span> not <span className="text-slate-200 font-mono">"AIza..."</span>)</li>
+                   </ul>
+                   <p className="text-slate-500 text-xs mt-2">After updating, go to deployments and redeploy.</p>
                  </div>
               )}
             </div>
