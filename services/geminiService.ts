@@ -1,10 +1,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { NutritionData } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 export const analyzeFood = async (query: string): Promise<NutritionData> => {
   try {
+    // Initialize lazily to prevent top-level await/crash issues
+    // and to handle cases where API_KEY might not be loaded immediately on page load
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+      throw new Error("API Key is not configured. Please add your Gemini API Key in Vercel Settings.");
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: `Analyze the nutritional content of: "${query}". 
