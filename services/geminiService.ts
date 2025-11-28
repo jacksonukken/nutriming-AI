@@ -34,7 +34,9 @@ export const analyzeFood = async (query: string): Promise<NutritionData> => {
       throw new Error("No data returned from AI");
     }
 
-    const data = JSON.parse(response.text) as NutritionData;
+    // Clean the response text to remove any potential markdown formatting
+    const cleanText = response.text.replace(/```json\n?|\n?```/g, '').trim();
+    const data = JSON.parse(cleanText) as NutritionData;
     return data;
   } catch (error) {
     console.error("Error analyzing food:", error);
