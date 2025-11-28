@@ -4,25 +4,22 @@ interface NutritionCardProps {
   label: string;
   value: number;
   unit: string;
-  colorClass: string;
-  icon?: React.ReactNode;
+  color: string; // Tailwind text color class
+  bg: string; // Tailwind bg color class
+  delay?: string; // Animation delay class
 }
 
-export const NutritionCard: React.FC<NutritionCardProps> = ({ label, value, unit, colorClass, icon }) => {
+export const NutritionCard: React.FC<NutritionCardProps> = ({ label, value, unit, color, bg, delay = '' }) => {
   return (
-    <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between transition-all hover:shadow-md">
-      <div>
-        <p className="text-slate-500 text-sm font-medium uppercase tracking-wider">{label}</p>
-        <div className="mt-1 flex items-baseline gap-1">
-          <span className={`text-2xl font-bold ${colorClass}`}>{value}</span>
-          <span className="text-slate-400 text-sm">{unit}</span>
-        </div>
+    <div className={`glass-card p-5 rounded-2xl flex flex-col justify-between hover:bg-slate-800/60 transition-colors animate-slide-up ${delay}`}>
+      <div className="flex justify-between items-start mb-2">
+        <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">{label}</span>
+        <div className={`h-2 w-2 rounded-full ${color.replace('text-', 'bg-')}`}></div>
       </div>
-      {icon && (
-        <div className={`p-2 rounded-full bg-opacity-10 ${colorClass.replace('text-', 'bg-').replace('700', '100').replace('600', '100')}`}>
-           {icon}
-        </div>
-      )}
+      <div className="flex items-baseline gap-1">
+        <span className={`text-3xl font-bold ${color}`}>{value}</span>
+        <span className="text-sm text-slate-500 font-medium">{unit}</span>
+      </div>
     </div>
   );
 };
