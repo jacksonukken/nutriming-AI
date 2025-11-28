@@ -7,7 +7,7 @@ export const analyzeFood = async (query: string): Promise<NutritionData> => {
     // and to handle cases where API_KEY might not be loaded immediately on page load
     const apiKey = process.env.API_KEY;
     if (!apiKey) {
-      throw new Error("API Key is not configured. Please add your Gemini API Key in Vercel Settings.");
+      throw new Error("API Key is not configured. Please add the variable 'API_KEY' in your Vercel Project Settings.");
     }
 
     const ai = new GoogleGenAI({ apiKey });
@@ -38,13 +38,24 @@ export const analyzeFood = async (query: string): Promise<NutritionData> => {
     });
 
     if (!response.text) {
-      throw new Error("No data returned from AI");
+      throw new Error("The AI model returned an empty response. Please try again.");
     }
 
     // Clean the response text to remove any potential markdown formatting
-    const cleanText = response.text.replace(/```json\n?|\n?```/g, '').trim();
-    const data = JSON.parse(cleanText) as NutritionData;
-    return data;
+    // Sometimes the model wraps JSON in ```json ... ``` despite the MIME type config
+    let cleanText = response.text.trim();
+    if (cleanText.startsWith('```')) {
+      cleanText = cleanText.replace(/^```json\s?/, '').replace(/^```\s?/, '').replace(/```$/, '');
+    }
+    
+    try {
+      const data = JSON.parse(cleanText) as NutritionData;
+      return data;
+    } catch (parseError) {
+      console.error("JSON Parse Error:", parseError, "Raw Text:", response.text);
+      throw new Error("Failed to parse nutrition data. The AI response was not valid JSON.");
+    }
+    
   } catch (error) {
     console.error("Error analyzing food:", error);
     throw error;

@@ -11,8 +11,8 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     define: {
       // Polyfill process.env.API_KEY for the browser environment
-      // Use || '' to prevent 'undefined' which causes runtime crashes
-      'process.env.API_KEY': JSON.stringify(env.API_KEY || ''),
+      // We check for both API_KEY and VITE_API_KEY to be flexible
+      'process.env.API_KEY': JSON.stringify(env.API_KEY || env.VITE_API_KEY || ''),
     },
     build: {
       outDir: 'dist',

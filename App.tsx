@@ -24,7 +24,10 @@ const App: React.FC = () => {
       setNutritionData(data);
       setLoadingState(LoadingState.SUCCESS);
     } catch (err) {
-      setError("Failed to analyze food. Please try again or check your internet connection.");
+      console.error(err);
+      // Show the actual error message to the user (e.g., "API Key missing")
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred.";
+      setError(errorMessage);
       setLoadingState(LoadingState.ERROR);
     }
   };
@@ -91,9 +94,12 @@ const App: React.FC = () => {
 
         {/* Error State */}
         {loadingState === LoadingState.ERROR && (
-          <div className="max-w-lg mx-auto p-4 bg-red-50 border border-red-100 text-red-700 rounded-xl flex items-center gap-3">
-             <Info className="h-5 w-5 flex-shrink-0" />
-             <p>{error}</p>
+          <div className="max-w-lg mx-auto p-4 bg-red-50 border border-red-100 text-red-700 rounded-xl flex items-start gap-3">
+             <Info className="h-5 w-5 flex-shrink-0 mt-0.5" />
+             <div>
+               <p className="font-medium">Analysis Failed</p>
+               <p className="text-sm opacity-90 mt-1">{error}</p>
+             </div>
           </div>
         )}
 
